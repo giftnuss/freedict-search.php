@@ -1,0 +1,5 @@
+app/data
+*~
+composer.lock
+vendor/
+logs/
