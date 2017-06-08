@@ -20,11 +20,14 @@ class Schema extends Base
 
         $this->table('headword')
             ->column->id('id')->word('headword')->id('language')
-            ->constraint->pk('id');
+            ->constraint->pk('id')->unique('headword','language');
 
         $this->table('translation')
-            ->column->id('id')->word('translation')->id('language')
-            ->constraint->pk('id');
+            ->column->id('id')
+                    ->id('headword')
+                    ->word('translation')
+                    ->id('language')
+            ->constraint->pk('id')->unique('headword','translation','language');
     }
 
     public function loadCoreData($db)

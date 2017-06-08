@@ -19,8 +19,8 @@ return [
             'driver' => 'dsn',
             'dsn' => 'sqlite:' . dirname(__DIR__) . '/data/freedict-search.sqlite'
         ],
-        'fredict' =>[
-            'rootdir' => dirname(dirname(__DIR__)) . '/fd-dictionaries',
+        'freedict' =>[
+            'rootdir' => dirname(dirname(__DIR__)) . '/../fd-dictionaries',
             'dictionaries' => [
                 'deu-eng'
             ]

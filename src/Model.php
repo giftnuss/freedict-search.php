@@ -26,6 +26,54 @@ class Model
     {
         $source = $this->getLanguage($src);
         $target = $this->getLanguage($tgt);
+        $sql = $this->sql;
+        $orm = $this->orm;
+        $save = function ($entity) use ($sql,$orm,$source,$target) {
+            $orm->query('headword')->if_not(
+                ['headword' => $entity['headword'], 'language' => $source->id],
+                function () use ($sql,$entity,$source) {
+                    $sql->insert('headword', ['headword' => $entity['headword'], 'language' => $source->id]);
+                    $entity['id'] = $sql->lastInsertId();
+                }, function ($row) use ($entity) {
+                    $entity['id'] = $row['id'];
+                });
+            foreach($entity['translation'] as $translation) {
+                $translation['headword'] = $entity->id;
+                $translation['language'] = $target->id;
+                $translation->save();
+            }
+            echo $entity['headword'],"\n";
+        };
+
+        return function () use ($save) {
+            $entity = new Model\Entry();
+            $entity->saveAction($save);
+            $entity['translation'] = [];
+            return $entity;
+        };
+    }
+
+    public function getTranslationFactory()
+    {
+        $sql = $this->sql;
+        $orm = $this->orm;
+
+        $save = function ($entity) use ($orm,$sql) {
+            $orm->query('translation')->if_not(
+                $entity->getData(),
+                function () use ($sql,$entity) {
+                    $sql->insert('translation',$entity->getData());
+                    $entity['id'] = $sql->lastInsertId();
+                }, function ($row) use ($entity) {
+                    $entity['id'] = $row['id'];
+                });
+        };
+
+        return function () use ($save) {
+            $entity = new Model\Translation();
+            $entity->saveAction($save);
+            return $entity;
+        };
     }
 
     public function getLanguage($code)
