@@ -1,0 +1,34 @@
+
+body {
+ background-color: #B9DEC0;
+ font-family: sans-serif;
+}
+
+.main-wrapper {
+ height: 100%;
+ width: 100%;
+}
+
+.form-wrap {
+ width: 400px;
+ margin: auto;
+ margin-top: 3%;
+}
+
+.form-wrap input.button {
+ visibility: none;
+}
+
+.search-input {
+ background-color: #FFD8D5;
+}
+
+.result-wrap>div {
+ float: left;
+ margin-right: 1em;
+ border-left: 1px dotted #334433;
+}
+.result-wrap>div>h3{
+ font-size:1.05em;
+ margin-left:1em;
+}

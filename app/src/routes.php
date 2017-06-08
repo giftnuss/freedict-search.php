@@ -2,9 +2,6 @@
 // Routes
 
 $app->get('/', function ($request, $response, $args) {
-    // Sample log message
-    $this->logger->info("Run '/' route for "  . $request->getRequestTarget());
-    $this->logger->info("Run '/' route for "  . $request->getUri()->getBaseUrl());
 
     $db = $this->db;
     $args['db'] = $db;
@@ -12,46 +9,12 @@ $app->get('/', function ($request, $response, $args) {
     return $this->renderer->render($response, 'index.phtml', $args);
 });
 
-$app->get('/cty/[{num}]', function ($request, $response, $args) {
-    $response = $response->withHeader('Content-Type','application/json');
+$app->get('/search/{arg:.*}', function ($request, $response, $args) {
+    $db = $this->db;
+    $model = $this->model;
+    $translation = $model->search($args['arg']);
 
-    $this->logger->info("Json '/cty' route " . (isset($args['num'])?$args['num']:''));
-
-    $args['model'] = $this->model;
-    $args['shelf'] = $this->shelf;
-
-    if(empty($args['num'])) {
-        $args['num'] = 0;
-        return $this->renderer->render($response, "level/{$args['num']}.phtml", $args);
-    }
-    $args['triple'] = $triple = $this->model->getTriple($args['num']);
-
-    if($triple['o']['type'] == 'concept') {
-        return $this->renderer->render($response, "level/{$triple['o']['value']}.phtml", $args);
-    }
-    elseif($triple['o']['type'] == 'uri') { // uri contains uri
-        return $this->renderer->render($response, "level/uri.phtml", $args);
-    }
-});
-
-$app->get('/document/{num}', function ($request, $response, $args) {
-
-    $args['triple'] = $triple = $this->model->getTriple($args['num']);
-    $shelf = $this->shelf;
-
-    $newStream = $shelf->getStream($triple['s']['value']);
-    $response = $response
-        ->withHeader('Content-Type', 'application/pdf')
-        ->withHeader("Content-Disposition","inline; filename=downloaded.pdf")
-        ->withHeader("Content-Length",$shelf->getFilesize($triple['s']['value']))
-        ->withBody($newStream);
-
-    return $response;
-});
-
-$app->get('/view/{type:[\w-]+}/{arg:.*}', \Taxonomia\Controller\Viewer::class);
-
-$app->get('/view/view.js', function ($request,$response,$args) {
-    $args = $request->getQueryParams();
-    return $this->renderer->render($response, "viewer/view.js", $args);
+    return $response->withStatus(200)
+        ->withHeader('Content-Type', 'application/json')
+        ->write(json_encode($translation));
 });

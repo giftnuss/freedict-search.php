@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./style.css"/>
+</head>
+
+<body>
+
+<div class="main-wrapper">
+  <div class="form-wrap">
+  <h2>Translation</h2>
+
+  <div class="search-wrap">
+  <form id="search-form" class="search" name="x" method="GET" action="/">
+        <input id="search-form-input" class="search-input" type="text" autocomplete="off" name="q" tabindex="1" value="">
+        <input id="search_button_homepage" class="search__button  button" type="submit" tabindex="2" value="S" />
+        <input id="search_form_input_clear" class="search__clear  empty  button" type="button" tabindex="3" value="X" />
+  </form>
+  </div>
+  </div>
+
+  <div class="result-wrap">
+  </div>
+</div>
+
+<script type="text/javascript" src="./js/jquery.js"></script>
+<script>
+
+
+$(function () {
+ var form = $("#search-form")
+ var myPost = function(){
+     var term = $('#search-form-input').val();
+     if(term.length > 0) {
+         $.getJSON({
+            url: "/search/" + term,
+            success: function (data,status,xqr) {
+                var rw = $(".result-wrap");
+                rw.empty();
+                for (var k in data) {
+                    var id = k;
+                    var headword = data[id]['headword'];
+                    var translations = data[id]['translation'];
+                    var container = $('<div id="result-' + id + '"></div>');
+                    container.append("<h3>" + headword + "</h3>");
+                    var list = $("<ul></ul>");
+                    translations.forEach(function (item) { list.append($("<li>"+ item +"</li>")); });
+                    container.append(list);
+                    rw.append(container);
+                }
+            }
+         });
+     }
+     return false;
+ }
+ form.on("submit", myPost);
+});
+</script>
+</body>
+
+</html>

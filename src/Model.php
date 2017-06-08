@@ -91,4 +91,24 @@ class Model
         return $lang;
     }
 
+    public function search($term)
+    {
+        $select = $this->sql->select('headword');
+        $select->join('translation')->as('t')->on('headword.id = t.headword');
+        $select->where('headword.headword LIKE :term',['term' => "%$term%"]);
+
+        $this->sql->doQuery($select,$stmt);
+        $rows = [];
+        while($row = $stmt->fetch(\PDO::FETCH_NAMED)) {
+            $id = $row['id'][0];
+            if(isset($rows[$id])) {
+                $rows[$id]['translation'][] = $row['translation'];
+            }
+            else {
+                $rows[$id] = ['headword' => $row['headword'][0],
+                              'translation' => [$row['translation']]];
+            }
+        }
+        return $rows;
+    }
 }
